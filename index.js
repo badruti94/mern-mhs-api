@@ -1,10 +1,11 @@
-const express = require('express')
+
 const mongoose = require('mongoose')
 require('dotenv/config')
 const bodyParser = require('body-parser')
 const mhsController = require('./src/controllers/mhs')
 const multer = require('multer')
 const path = require('path')
+const cors = require('cors')
 
 const app = express()
 mongoose.connect(process.env.MONGO_URI, {
@@ -36,15 +37,10 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
+app.use(cors())
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('foto'))
 app.use(bodyParser.json())
 app.use('/public', express.static(path.join(__dirname, 'public')))
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    next()
-})
 
 app.get('/mhs', mhsController.getAll)
 app.get('/mhs/:id', mhsController.getById)
